@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+import { existEmail, existID, passwordValidate } from "../helpers/db-validator.js";
 import { User } from "../models/user.model.js";
 
 export const getUser = async (req, res) => {
@@ -15,10 +17,14 @@ export const getUser = async (req, res) => {
 }
 
 export const getUserId = async (req, res) => {
-    const { id } = req.params;
 
     try {
+        const { id } = req.params;
+
+        await existID(id);
+
         const user = await User.findByPk(id);
+
         res.json(user);
 
     } catch (error) {
@@ -29,13 +35,20 @@ export const getUserId = async (req, res) => {
 }
 
 export const createUser = async (req, res) => {
-    const { id: _, estado, role, email, password, ...restUser } = req.body;
 
     try {
+        const { id: _, estado, role, email, password, ...restUser } = req.body;
+
+        await existEmail(email);
+        await passwordValidate(password);
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const user = await User.create({
             ...restUser,
             email,
-            password,
+            password: hashedPassword,
+            role
         });
 
         res.json({
@@ -52,10 +65,13 @@ export const createUser = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { id: _, email, role, estado, ...restUser } = req.body;
 
     try {
+        const { id } = req.params;
+        const { id: _, email, role, estado, ...restUser } = req.body;
+
+        await existID(id);
+
         await User.update(restUser, {
             where: { id }
         });
@@ -75,9 +91,12 @@ export const updateUser = async (req, res) => {
 }
 
 export const estadoUser = async (req, res) => {
-    const { id } = req.params;
 
     try {
+        const { id } = req.params;
+
+        await existID(id);
+
         const user = await User.findByPk(id);
 
         const newStatus = !user.estado;
