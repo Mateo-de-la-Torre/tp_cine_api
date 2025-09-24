@@ -1,39 +1,68 @@
-import {DataTypes} from 'sequelize';
-import {sequelize} from "../config/db/db.js";
+import { DataTypes } from 'sequelize';
+import { sequelize } from "../config/db/db.js";
 
 export const Pelicula = sequelize.define("pelicula", {
-    id:{
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    titulo:{
+    titulo: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: {
+            args: true,
+            msg: "El título ya existe"
+        },
+        validate: {
+            len: [1, 50],
+            notEmpty: true,
+        }
     },
-    descripcion:{
+    descripcion: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            len: [1, 500]
+        }
     },
-    duracion:{
+    duracion: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            min: 60,
+            max: 300
+        }
     },
-    genero:{
+    genero: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            len: [1, 50]
+        }
+    },
+    reparto: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    reparto:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    calificacion:{
+    calificacion: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            min: 0,
+            max: 10
+        }
     },
-    imageUrl:{
+    imageUrl: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isUrl: true
+        }
+    },
+    estado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }, {
     timestamps: false
