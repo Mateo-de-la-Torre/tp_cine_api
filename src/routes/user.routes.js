@@ -7,8 +7,8 @@ import { isAdminRole } from "../middlewares/validar-isAdmin.js";
 const userRouter = Router();
 
 userRouter.get("/", [
-    validarJWT,
-    isAdminRole
+    // validarJWT,
+    // isAdminRole
 ], getUser);
 userRouter.get("/:id", getUserId);
 

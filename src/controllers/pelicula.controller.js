@@ -22,7 +22,7 @@ export const getPeliculaId = async (req, res) => {
         const pelicula = await Pelicula.findByPk(id);
         if (!pelicula) {
             return res.status(404).json({
-                message: `No existe un usuario con el id: ${id} `
+                message: `No existe un pelicula con el id: ${id} `
             });
         }
 
