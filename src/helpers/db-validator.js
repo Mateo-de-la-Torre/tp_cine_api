@@ -1,5 +1,7 @@
 import { ValidationError } from "sequelize";
 import { User } from "../models/user.model.js";
+import { Pelicula } from "../models/pelicula.model.js";
+import { Sala } from "../models/sala.model.js";
 
 
 
@@ -50,4 +52,29 @@ export const existEmail = async (email) => {
     }
 
     return email;
+}
+
+// Validaciones para Películas
+export const existPeliculaId = async (peliculaId) => {
+
+    const pelicula = await Pelicula.findByPk(peliculaId);
+    if (!pelicula) {
+        throw new ValidationError(`No existe una película con el ID: ${peliculaId}`);
+    }
+
+    if (!pelicula.estado) {
+        throw new ValidationError(`La película con ID ${peliculaId} no está disponible (estado inactivo)`);
+    }
+
+    return peliculaId;
+}
+
+
+export const existSalaId = async (salaId) => {
+    const sala = await Sala.findByPk(salaId);
+    if (!sala) {
+        throw new ValidationError(`No existe la sala ${salaId}`);
+    }
+
+    return salaId;
 }

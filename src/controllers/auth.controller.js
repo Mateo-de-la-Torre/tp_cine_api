@@ -10,7 +10,7 @@ export const login = async (req, res) => {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            return res.status(400).send({ error: 'Email o contraseña incorrecta' });
+            return res.status(400).send({ error: 'Email no registrado' });
         }
 
         if (!user.estado) {
@@ -33,7 +33,6 @@ export const login = async (req, res) => {
 
         res.json({
             message: "Login exitoso",
-            user,
             token
         });
 
@@ -73,6 +72,14 @@ export const register = async (req, res) => {
             error: error.message
         });
     }
+}
+
+
+export const verifyToken = async (req, res) => {
+    res.json({
+        message: "Token valido",
+        user: req.user
+    });
 }
 
 
