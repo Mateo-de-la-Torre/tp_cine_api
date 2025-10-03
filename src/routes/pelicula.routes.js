@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPelicula, getPeliculaId, createPelicula, updatePelicula } from "../controllers/pelicula.controller.js";
+import { getPelicula, getPeliculaId, createPelicula, updatePelicula, estadoPelicula } from "../controllers/pelicula.controller.js";
 
 
 
@@ -9,6 +9,7 @@ peliculaRouter.get("/", getPelicula);
 peliculaRouter.get("/:id", getPeliculaId);
 peliculaRouter.post("/", createPelicula);
 peliculaRouter.put("/:id", updatePelicula);
+peliculaRouter.patch("/:id", estadoPelicula);
 
 export default peliculaRouter;
 

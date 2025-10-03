@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { existEmail, existID, passwordValidate } from "../helpers/db-validator.js";
+import { existEmail, existUserId, passwordValidate } from "../helpers/db-validator.js";
 import { User } from "../models/user.model.js";
 
 export const getUser = async (req, res) => {
@@ -21,7 +21,7 @@ export const getUserId = async (req, res) => {
     try {
         const { id } = req.params;
 
-        await existID(id);
+        await existUserId(id);
 
         const user = await User.findByPk(id);
 
@@ -70,7 +70,7 @@ export const updateUser = async (req, res) => {
         const { id } = req.params;
         const { id: _, email, role, estado, ...restUser } = req.body;
 
-        await existID(id);
+        await existUserId(id);
 
         await User.update(restUser, {
             where: { id }
@@ -95,7 +95,7 @@ export const estadoUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        await existID(id);
+        await existUserId(id);
 
         const user = await User.findByPk(id);
 
@@ -105,7 +105,8 @@ export const estadoUser = async (req, res) => {
             where: { id }
         });
 
-        const statusMessage = newStatus ? "Usuario activado" : "Usuario desactivado";
+        const statusMessage = newStatus ?
+            `Usuario ${user.fullName} activado` : `Usuario ${user.fullName} desactivado`;
 
         res.json({
             message: statusMessage,

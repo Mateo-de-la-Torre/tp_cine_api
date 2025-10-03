@@ -1,4 +1,5 @@
 import { Pelicula } from "../models/pelicula.model.js";
+import { existPeliculaId } from "../helpers/db-validator.js";
 
 
 export const getPelicula = async (req, res) => {
@@ -19,12 +20,9 @@ export const getPeliculaId = async (req, res) => {
     try {
         const { id } = req.params;
 
+        await existPeliculaId(id);
+
         const pelicula = await Pelicula.findByPk(id);
-        if (!pelicula) {
-            return res.status(404).json({
-                message: `No existe un pelicula con el id: ${id} `
-            });
-        }
 
         res.json(pelicula);
 
@@ -60,12 +58,7 @@ export const updatePelicula = async (req, res) => {
         const { id } = req.params;
         const { id: _, ...restPelicula } = req.body;
 
-        const pelicula = await Pelicula.findByPk(id);
-        if (!pelicula) {
-            return res.status(404).json({
-                message: `No existe una película con el id: ${id}`
-            });
-        }
+        await existPeliculaId(id);
 
         await Pelicula.update(restPelicula, {
             where: { id }
@@ -78,6 +71,37 @@ export const updatePelicula = async (req, res) => {
             updatePelicula
         });
 
+
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+}
+
+
+export const estadoPelicula = async (req, res) => {
+
+    try {
+        const { id } = req.params;
+
+        await existPeliculaId(id);
+
+        const pelicula = await Pelicula.findByPk(id);
+
+        const newStatus = !pelicula.estado;
+
+        await Pelicula.update({ estado: newStatus }, {
+            where: { id }
+        });
+
+        const statusMessage = newStatus ?
+            `Pelicula ${pelicula.titulo} activada correctamente` : `Pelicula ${pelicula.titulo} desactivada correctamente`;
+
+        res.json({
+            message: statusMessage,
+            newStatus: newStatus
+        });
 
     } catch (error) {
         res.status(400).json({
