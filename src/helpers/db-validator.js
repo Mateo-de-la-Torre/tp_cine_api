@@ -2,9 +2,10 @@ import { ValidationError } from "sequelize";
 import { User } from "../models/user.model.js";
 import { Pelicula } from "../models/pelicula.model.js";
 import { Sala } from "../models/sala.model.js";
+import { Funcion } from "../models/funcion.model.js";
 
 
-
+// AUTH
 export const emailValidate = (email) => {
 
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -33,17 +34,6 @@ export const passwordValidate = (password) => {
 }
 
 
-
-
-export const existID = async (id) => {
-    const existID = await User.findByPk(id);
-    if (!existID) {
-        throw new ValidationError(`No existe un usuario con el id: ${id} `);
-    }
-
-    return id;
-}
-
 export const existEmail = async (email) => {
 
     const existEmail = await User.findOne({ where: { email } });
@@ -54,7 +44,17 @@ export const existEmail = async (email) => {
     return email;
 }
 
-// Validaciones para Películas
+// USER
+export const existUserId = async (id) => {
+    const existID = await User.findByPk(id);
+    if (!existID) {
+        throw new ValidationError(`No existe un usuario con el id: ${id} `);
+    }
+
+    return id;
+}
+
+// PELICULA
 export const existPeliculaId = async (peliculaId) => {
 
     const pelicula = await Pelicula.findByPk(peliculaId);
@@ -62,14 +62,22 @@ export const existPeliculaId = async (peliculaId) => {
         throw new ValidationError(`No existe una película con el ID: ${peliculaId}`);
     }
 
-    if (!pelicula.estado) {
-        throw new ValidationError(`La película con ID ${peliculaId} no está disponible (estado inactivo)`);
-    }
-
     return peliculaId;
 }
 
 
+
+// FUNCION
+export const existFuncionId = async (funcionId) => {
+    const funcion = await Funcion.findByPk(funcionId);
+    if (!funcion) {
+        throw new ValidationError(`No existe la función con el ID: ${funcionId}`);
+    }
+    return funcionId;
+}
+
+
+//SALA
 export const existSalaId = async (salaId) => {
     const sala = await Sala.findByPk(salaId);
     if (!sala) {
@@ -77,4 +85,12 @@ export const existSalaId = async (salaId) => {
     }
 
     return salaId;
+}
+
+export const existNumeroSala = async (numeroSala) => {
+    const sala = await Sala.findOne({ where: { numeroSala } });
+    if (sala) {
+        throw new ValidationError(`Ya existe la sala número ${numeroSala}`);
+    }
+    return numeroSala;
 }

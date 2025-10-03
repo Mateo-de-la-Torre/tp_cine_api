@@ -1,5 +1,5 @@
 import { Funcion } from "../models/funcion.model.js";
-import { existPeliculaId, existSalaId } from "../helpers/db-validator.js";
+import { existPeliculaId, existSalaId, existFuncionId } from "../helpers/db-validator.js";
 
 
 export const getFuncion = async (req, res) => {
@@ -22,6 +22,9 @@ export const getFuncion = async (req, res) => {
 export const getFuncionById = async (req, res) => {
     try {
         const { id } = req.params;
+
+        await existFuncionId(id);
+
         const funcion = await Funcion.findByPk(id);
 
         res.json({
@@ -74,12 +77,7 @@ export const updateFuncion = async (req, res) => {
         await existPeliculaId(restFuncion.peliculaId);
         await existSalaId(restFuncion.salaId);
 
-        const funcion = await Funcion.findByPk(id);
-        if (!funcion) {
-            return res.status(404).json({
-                message: `No existe una función con el id: ${id}`
-            });
-        }
+        await existFuncionId(id);
 
         await Funcion.update(restFuncion, {
             where: { id }
@@ -99,4 +97,35 @@ export const updateFuncion = async (req, res) => {
         });
     }
 
+}
+
+
+export const estadoFuncion = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await existFuncionId(id);
+
+        const funcion = await Funcion.findByPk(id);
+
+        const newStatus = !funcion.estado;
+
+        await Funcion.update({ estado: newStatus }, {
+            where: { id }
+        });
+
+        const statusMessage = newStatus ?
+            "Funcion activada correctamente" : "Funcion desactivada correctamente";
+
+        res.json({
+            message: statusMessage,
+            newStatus: newStatus
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al actualizar el estado de la función",
+            error: error.message
+        });
+    }
 }
