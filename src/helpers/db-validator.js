@@ -1,8 +1,5 @@
 import { ValidationError } from "sequelize";
-import { User } from "../models/user.model.js";
-import { Pelicula } from "../models/pelicula.model.js";
-import { Sala } from "../models/sala.model.js";
-import { Funcion } from "../models/funcion.model.js";
+import { User, Pelicula, Sala, Funcion, Reserva } from "../models/index.js";
 
 
 // AUTH
@@ -65,6 +62,62 @@ export const existPeliculaId = async (peliculaId) => {
     return peliculaId;
 }
 
+export const peliculaActiva = async (peliculaId) => {
+    if (!peliculaId) {
+        throw new ValidationError(`La película es requerida`);
+    }
+
+    const pelicula = await Pelicula.findOne({ where: { id: peliculaId, estado: true } });
+    if (!pelicula) {
+        throw new ValidationError(`No existe una película activa con el ID: ${peliculaId}`);
+    }
+    return peliculaId;
+}
+
+
+export const calcularHoraFin = async (fecha, horaInicio, duracionMinutos) => {
+    const fechaHoraCompleta = new Date(`${fecha}T${horaInicio}:00`);
+
+    fechaHoraCompleta.setMinutes(fechaHoraCompleta.getMinutes() + duracionMinutos);
+
+    return fechaHoraCompleta.toTimeString().slice(0, 5);
+}
+
+export const verificarSolapamiento = async (salaId, fecha, hora, horaFin) => {
+
+    const horaAMinutos = (hora) => {
+        const [h, m] = hora.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    const inicioNueva = horaAMinutos(hora);
+    const finNueva = horaAMinutos(horaFin);
+
+    const funcionExistente = await Funcion.findAll({
+        where: {
+            salaId,
+            fecha,
+            estado: true
+        }
+    });
+
+    const haySolapamiento = funcionExistente.some(funcion => {
+        const inicioExistente = horaAMinutos(funcion.hora);
+        const finExistente = horaAMinutos(funcion.horaFin);
+
+        const finExistenteAjustado = finExistente < inicioExistente ? finExistente + 1440 : finExistente;
+        const finNuevaAjustado = finNueva < inicioNueva ? finNueva + 1440 : finNueva;
+
+        return (inicioExistente < finNuevaAjustado && finExistenteAjustado > inicioNueva);
+    });
+
+    if (haySolapamiento) {
+        throw new ValidationError(`Ya existe una función en esta sala, fecha y hora`);
+    }
+
+    return true;
+
+}
 
 
 // FUNCION
@@ -76,6 +129,31 @@ export const existFuncionId = async (funcionId) => {
     return funcionId;
 }
 
+export const fechaHoraFuncion = async (fecha, hora) => {
+
+    if (!fecha) {
+        throw new ValidationError(`La fecha es requerida`);
+    }
+
+    if (!hora) {
+        throw new ValidationError(`La hora es requerida`);
+    }
+
+    const horaRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!horaRegex.test(hora)) {
+        throw new ValidationError(`El formato de la hora debe ser HH:MM (24 horas)`);
+    }
+
+    const fechaHoraCompleta = new Date(`${fecha}T${hora}:00`);
+    const ahora = new Date();
+
+
+    if (fechaHoraCompleta <= ahora) {
+        throw new ValidationError(`La fecha y hora de la función debe ser mayor a la fecha y hora actual`);
+    }
+
+    return { fecha, hora };
+}
 
 //SALA
 export const existSalaId = async (salaId) => {
@@ -87,10 +165,32 @@ export const existSalaId = async (salaId) => {
     return salaId;
 }
 
+export const salaActiva = async (salaId) => {
+
+    if (!salaId) {
+        throw new ValidationError(`La sala es requerida`);
+    }
+
+    const sala = await Sala.findOne({ where: { id: salaId, estado: true } });
+    if (!sala) {
+        throw new ValidationError(`No existe una sala activa con el ID: ${salaId}`);
+    }
+    return salaId;
+}
+
 export const existNumeroSala = async (numeroSala) => {
     const sala = await Sala.findOne({ where: { numeroSala } });
     if (sala) {
         throw new ValidationError(`Ya existe la sala número ${numeroSala}`);
     }
     return numeroSala;
+}
+
+// RESERVA
+export const existReservaId = async (reservaId) => {
+    const reserva = await Reserva.findByPk(reservaId);
+    if (!reserva) {
+        throw new ValidationError(`No existe la reserva con el ID: ${reservaId}`);
+    }
+    return reservaId;
 }

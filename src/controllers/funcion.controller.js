@@ -1,5 +1,6 @@
-import { Funcion } from "../models/funcion.model.js";
-import { existPeliculaId, existSalaId, existFuncionId } from "../helpers/db-validator.js";
+import { Funcion, Pelicula, Sala } from "../models/index.js";
+import { existPeliculaId, existSalaId, existFuncionId, peliculaActiva, salaActiva, fechaHoraFuncion, calcularHoraFin, verificarSolapamiento } from "../helpers/db-validator.js";
+
 
 
 export const getFuncion = async (req, res) => {
@@ -44,14 +45,26 @@ export const getFuncionById = async (req, res) => {
 export const createFuncion = async (req, res) => {
 
     try {
-        const { peliculaId, salaId, ...restFuncion } = req.body;
+        const { peliculaId, salaId, asientosDisponibles, fecha, hora, horaFin, ...restFuncion } = req.body;
 
-        await existPeliculaId(peliculaId);
-        await existSalaId(salaId);
+        await peliculaActiva(peliculaId);
+        await salaActiva(salaId);
+        await fechaHoraFuncion(fecha, hora);
+
+        const sala = await Sala.findByPk(salaId);
+        const pelicula = await Pelicula.findByPk(peliculaId);
+
+        const horaFinal = await calcularHoraFin(fecha, hora, pelicula.duracion);
+
+        await verificarSolapamiento(salaId, fecha, hora, horaFinal);
 
         const funcion = await Funcion.create({
             peliculaId,
             salaId,
+            asientosDisponibles: sala.capacidad,
+            fecha,
+            hora,
+            horaFin: horaFinal,
             ...restFuncion
         });
 
@@ -72,14 +85,31 @@ export const updateFuncion = async (req, res) => {
 
     try {
         const { id } = req.params;
-        const { id: _, ...restFuncion } = req.body;
 
-        await existPeliculaId(restFuncion.peliculaId);
-        await existSalaId(restFuncion.salaId);
+        const { id: _, peliculaId, salaId, fecha, hora, asientosDisponibles, horaFin, ...restFuncion } = req.body;
+
+        await peliculaActiva(peliculaId);
+        await salaActiva(salaId);
+        await fechaHoraFuncion(fecha, hora);
 
         await existFuncionId(id);
 
-        await Funcion.update(restFuncion, {
+        const sala = await Sala.findByPk(salaId);
+        const pelicula = await Pelicula.findByPk(peliculaId);
+
+        const horaFinal = await calcularHoraFin(fecha, hora, pelicula.duracion);
+
+        await verificarSolapamiento(salaId, fecha, hora, horaFinal);
+
+        await Funcion.update({
+            peliculaId,
+            salaId,
+            asientosDisponibles: sala.capacidad,
+            fecha,
+            hora,
+            horaFin: horaFinal,
+            ...restFuncion
+        }, {
             where: { id }
         });
 

@@ -41,14 +41,14 @@ export const Funcion = sequelize.define("funcion", {
         }
     },
     fecha: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false,
         validate: {
             notNull: {
                 msg: "La fecha es requerida"
             },
             isDate: {
-                msg: "La fecha debe ser una fecha válida"
+                msg: "La fecha debe ser una fecha válida (YYYY-MM-DD)"
             }
         }
     },
@@ -60,9 +60,17 @@ export const Funcion = sequelize.define("funcion", {
                 msg: "La hora es requerida"
             },
             isTime: {
-                msg: "La hora debe ser una hora válida"
+                msg: "La hora debe ser una hora válida (HH:MM)"
             }
         }
+    },
+    horaFin: {
+        type: DataTypes.TIME,
+        allowNull: false
+    },
+    asientosDisponibles: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     estado: {
         type: DataTypes.BOOLEAN,

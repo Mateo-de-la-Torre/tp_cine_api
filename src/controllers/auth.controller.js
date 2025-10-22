@@ -50,14 +50,15 @@ export const register = async (req, res) => {
     try {
         const { id: _, estado, role, email, password, ...restUser } = req.body;
 
-        await emailValidate(email);
+        const validatedEmail = await emailValidate(email);
+
         await passwordValidate(password);
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             ...restUser,
-            email,
+            email: validatedEmail,
             password: hashedPassword,
         })
 

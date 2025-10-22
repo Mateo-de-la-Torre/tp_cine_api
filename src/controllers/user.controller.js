@@ -67,12 +67,18 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
 
     try {
-        const { id } = req.params;
-        const { id: _, email, role, estado, ...restUser } = req.body;
+        const { id } = req.user;
+        const { id: _, email, password, role, estado, ...restUser } = req.body;
 
         await existUserId(id);
+        await passwordValidate(password);
 
-        await User.update(restUser, {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await User.update({
+            ...restUser,
+            password: hashedPassword
+        }, {
             where: { id }
         });
 
@@ -94,6 +100,12 @@ export const estadoUser = async (req, res) => {
 
     try {
         const { id } = req.params;
+
+        if (req.user.id == id && req.user.role === 'superadmin') {
+            return res.status(400).json({
+                message: "No puedes desactivar tu propio usuario"
+            });
+        }
 
         await existUserId(id);
 
@@ -120,3 +132,42 @@ export const estadoUser = async (req, res) => {
     }
 }
 
+
+export const updateUserRole = async (req, res) => {
+
+    const { id } = req.params;
+    const { role } = req.body;
+
+    try {
+
+        const rolesValidos = ['user', 'admin', 'superadmin'];
+        if (!role || !rolesValidos.includes(role)) {
+            return res.status(400).json({
+                message: `Rol inválido. Roles válidos: ${rolesValidos.join(', ')}`
+            });
+        }
+
+        if (req.user.id == id && req.user.role === 'superadmin') {
+            return res.status(400).json({
+                message: "No puedes quitarte a ti mismo el rol de superadmin"
+            });
+        }
+
+        await existUserId(id);
+
+        await User.update({ role }, {
+            where: { id }
+        });
+
+        const updateRoleUser = await User.findByPk(id);
+
+        res.json({
+            message: "Rol actualizado correctamente",
+            updateRoleUser
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+}

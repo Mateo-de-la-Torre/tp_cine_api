@@ -1,5 +1,6 @@
 import { Pelicula } from "../models/pelicula.model.js";
 import { existPeliculaId } from "../helpers/db-validator.js";
+import { Funcion } from "../models/funcion.model.js";
 
 
 export const getPelicula = async (req, res) => {
@@ -88,6 +89,14 @@ export const estadoPelicula = async (req, res) => {
         await existPeliculaId(id);
 
         const pelicula = await Pelicula.findByPk(id);
+
+        const funcion = await Funcion.findOne({ where: { peliculaId: id, estado: true } });
+
+        if (funcion) {
+            return res.status(400).json({
+                message: "No se puede desactivar la pelicula porque tiene funciones activas, primero debes desactivar las funciones"
+            });
+        }
 
         const newStatus = !pelicula.estado;
 

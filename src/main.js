@@ -29,7 +29,7 @@ app.use("/api", mainRouter);
 async function main() {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ force: true });
+        await sequelize.sync({ force: false });
         console.log("Base de datos sincronizada");
 
         app.listen(PORT);

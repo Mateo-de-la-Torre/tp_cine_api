@@ -24,7 +24,7 @@ export const User = sequelize.define("User", {
         allowNull: false
     },
     role: {
-        type: DataTypes.ENUM("admin", "user", "superadmin"),
+        type: DataTypes.ENUM("superadmin", "admin", "user"),
         defaultValue: "user"
     },
     estado: {
@@ -32,6 +32,6 @@ export const User = sequelize.define("User", {
         defaultValue: true
     }
 }, {
-    timestamps: false
+    timestamps: false,
 });
 

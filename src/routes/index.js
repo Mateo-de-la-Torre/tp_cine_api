@@ -4,6 +4,7 @@ import userRouter from "./user.routes.js";
 import peliculaRouter from "./pelicula.routes.js";
 import funcionRouter from "./funcion.routes.js";
 import salaRouter from "./sala.routes.js";
+import reservaRouter from "./reserva.routes.js";
 
 
 
@@ -15,3 +16,4 @@ mainRouter.use("/user", userRouter);
 mainRouter.use("/pelicula", peliculaRouter);
 mainRouter.use("/funcion", funcionRouter);
 mainRouter.use("/sala", salaRouter);
+mainRouter.use("/reserva", reservaRouter);
