@@ -8,11 +8,9 @@ import { isAdminRole } from "../middlewares/validar-isAdmin.js";
 const peliculaRouter = Router();
 
 peliculaRouter.get("/", [
-    validarJWT
 ], getPelicula);
 
 peliculaRouter.get("/:id", [
-    validarJWT
 ], getPeliculaId);
 
 peliculaRouter.post("/", [
