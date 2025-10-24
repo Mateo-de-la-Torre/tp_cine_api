@@ -71,14 +71,18 @@ export const updateUser = async (req, res) => {
         const { id: _, email, password, role, estado, ...restUser } = req.body;
 
         await existUserId(id);
-        await passwordValidate(password);
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Preparar datos de actualización
+        const updateData = { ...restUser };
 
-        await User.update({
-            ...restUser,
-            password: hashedPassword
-        }, {
+        // Solo actualizar contraseña si se proporciona
+        if (password && password.trim()) {
+            await passwordValidate(password);
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateData.password = hashedPassword;
+        }
+
+        await User.update(updateData, {
             where: { id }
         });
 

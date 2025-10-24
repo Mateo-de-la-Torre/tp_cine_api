@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
-import { emailValidate, passwordValidate } from "../helpers/db-validator.js";
+import { emailValidate, existEmail, passwordValidate } from "../helpers/db-validator.js";
 
 export const login = async (req, res) => {
     try {
@@ -51,6 +51,8 @@ export const register = async (req, res) => {
         const { id: _, estado, role, email, password, ...restUser } = req.body;
 
         const validatedEmail = await emailValidate(email);
+
+        await existEmail(email);
 
         await passwordValidate(password);
 
