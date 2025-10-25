@@ -1,4 +1,4 @@
-import { getFuncion, createFuncion, getFuncionById, updateFuncion, estadoFuncion } from "../controllers/funcion.controller.js";
+import { getFuncion, createFuncion, updateFuncion, estadoFuncion, getFuncionByPeliculaId } from "../controllers/funcion.controller.js";
 import { Router } from "express";
 import { validarJWT } from "../middlewares/validar-jwt.js";
 import { isAdminRole } from "../middlewares/validar-isAdmin.js";
@@ -10,9 +10,9 @@ funcionRouter.get("/", [
     validarJWT
 ], getFuncion);
 
-funcionRouter.get("/:id", [
+funcionRouter.get("/:peliculaId", [
     validarJWT
-], getFuncionById);
+], getFuncionByPeliculaId);
 
 funcionRouter.post("/", [
     validarJWT,

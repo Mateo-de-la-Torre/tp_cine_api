@@ -1,6 +1,7 @@
 import { Pelicula } from "../models/pelicula.model.js";
 import { existPeliculaId } from "../helpers/db-validator.js";
 import { Funcion } from "../models/funcion.model.js";
+import { Op } from "sequelize";
 
 
 export const getPelicula = async (req, res) => {
@@ -26,6 +27,36 @@ export const getPeliculaId = async (req, res) => {
         const pelicula = await Pelicula.findByPk(id);
 
         res.json(pelicula);
+
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+}
+
+export const getPeliculaByTitulo = async (req, res) => {
+    try {
+        const { titulo } = req.query;
+
+        const peliculas = await Pelicula.findAll({
+            where: {
+                titulo: {
+                    [Op.like]: `%${titulo}%`
+                }
+            }
+        });
+
+        if (peliculas.length === 0) {
+            return res.status(404).json({
+                error: 'No se encontraron películas con ese título'
+            });
+        }
+
+        res.json({
+            message: `Se encontraron ${peliculas.length} película(s)`,
+            peliculas
+        });
 
     } catch (error) {
         res.status(400).json({

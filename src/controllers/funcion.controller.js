@@ -20,17 +20,20 @@ export const getFuncion = async (req, res) => {
     }
 }
 
-export const getFuncionById = async (req, res) => {
+export const getFuncionByPeliculaId = async (req, res) => {
     try {
-        const { id } = req.params;
 
-        await existFuncionId(id);
+        const { peliculaId } = req.params;
 
-        const funcion = await Funcion.findByPk(id);
+        await existPeliculaId(peliculaId);
+
+        const funciones = await Funcion.findAll({
+            where: { peliculaId }
+        });
 
         res.json({
             message: "Funcion obtenida correctamente",
-            funcion
+            funciones
         });
 
     } catch (error) {
