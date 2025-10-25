@@ -17,6 +17,18 @@ export const getPelicula = async (req, res) => {
     }
 }
 
+export const getPeliculaByEstado = async (req, res) => {
+    try {
+        const peliculas = await Pelicula.findAll({ where: { estado: true } });
+        res.json(peliculas);
+
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+}
+
 
 export const getPeliculaId = async (req, res) => {
     try {

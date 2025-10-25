@@ -1,4 +1,5 @@
 import { existNumeroSala, existSalaId } from "../helpers/db-validator.js";
+import { Funcion } from "../models/funcion.model.js";
 import { Sala } from "../models/sala.model.js";
 
 
@@ -39,8 +40,7 @@ export const createSala = async (req, res) => {
 
     } catch (error) {
         res.status(400).json({
-            message: "Error al crear la sala",
-            error: error.message
+            message: error.message
         });
     }
 }
@@ -52,6 +52,14 @@ export const estadoSala = async (req, res) => {
         await existSalaId(id);
 
         const sala = await Sala.findByPk(id);
+
+        const funcion = await Funcion.findOne({ where: { salaId: id, estado: true } });
+
+        if (funcion) {
+            return res.status(400).json({
+                message: "No se puede desactivar la sala porque tiene funciones activas, primero debes desactivar las funciones"
+            });
+        }
 
         const newStatus = !sala.estado;
 
