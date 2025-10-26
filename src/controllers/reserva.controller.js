@@ -1,6 +1,6 @@
 import { sequelize } from "../config/db/db.js";
 import { existFuncionId, existReservaId, existUserId } from "../helpers/db-validator.js";
-import { Funcion, Reserva } from "../models/index.js";
+import { Funcion, Reserva, Pelicula } from "../models/index.js";
 
 
 export const getReservas = async (req, res) => {
@@ -43,7 +43,18 @@ export const getMyReservas = async (req, res) => {
         const userId = req.user.id;
 
         const reservas = await Reserva.findAll({
-            where: { userId },
+            where: { userId, estado: true },
+            include: [
+                {
+                    model: Funcion,
+                    include: [
+                        {
+                            model: Pelicula,
+                            attributes: ['id', 'titulo', 'genero']
+                        }
+                    ]
+                }
+            ]
         });
 
         res.json({
