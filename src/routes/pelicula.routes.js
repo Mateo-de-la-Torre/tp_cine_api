@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getPelicula, getPeliculaByTitulo, createPelicula, updatePelicula, estadoPelicula, getPeliculaByEstado } from "../controllers/pelicula.controller.js";
 import { validarJWT } from "../middlewares/validar-jwt.js";
-import { isAdminRole } from "../middlewares/validar-isAdmin.js";
+import { isAdminRole, isSuperAdminRole } from "../middlewares/validar-isAdmin.js";
 
 
 
@@ -31,7 +31,7 @@ peliculaRouter.put("/:id", [
 
 peliculaRouter.patch("/:id", [
     validarJWT,
-    isAdminRole
+    isSuperAdminRole
 ], estadoPelicula);
 
 export default peliculaRouter;

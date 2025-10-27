@@ -5,7 +5,18 @@ import { existPeliculaId, existSalaId, existFuncionId, peliculaActiva, salaActiv
 
 export const getFuncion = async (req, res) => {
     try {
-        const funciones = await Funcion.findAll();
+        const funciones = await Funcion.findAll({
+            include: [
+                {
+                    model: Pelicula,
+                    attributes: ["id", "titulo"],
+                },
+                {
+                    model: Sala,
+                    attributes: ["id", "numeroSala"],
+                }
+            ]
+        });
 
         res.json({
             message: "Funciones obtenidas correctamente",

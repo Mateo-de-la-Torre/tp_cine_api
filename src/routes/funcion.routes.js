@@ -1,7 +1,7 @@
 import { getFuncion, createFuncion, updateFuncion, estadoFuncion, getFuncionByPeliculaId } from "../controllers/funcion.controller.js";
 import { Router } from "express";
 import { validarJWT } from "../middlewares/validar-jwt.js";
-import { isAdminRole } from "../middlewares/validar-isAdmin.js";
+import { isAdminRole, isSuperAdminRole } from "../middlewares/validar-isAdmin.js";
 
 
 const funcionRouter = Router();
@@ -26,7 +26,7 @@ funcionRouter.put("/:id", [
 
 funcionRouter.patch("/:id", [
     validarJWT,
-    isAdminRole
+    isSuperAdminRole
 ], estadoFuncion);
 
 
