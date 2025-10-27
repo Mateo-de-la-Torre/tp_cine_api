@@ -1,4 +1,4 @@
-import { ValidationError } from "sequelize";
+import { ValidationError, Op } from "sequelize";
 import { User, Pelicula, Sala, Funcion, Reserva } from "../models/index.js";
 
 
@@ -83,7 +83,7 @@ export const calcularHoraFin = async (fecha, horaInicio, duracionMinutos) => {
     return fechaHoraCompleta.toTimeString().slice(0, 5);
 }
 
-export const verificarSolapamiento = async (salaId, fecha, hora, horaFin) => {
+export const verificarSolapamiento = async (salaId, fecha, hora, horaFin, funcionIdExcluir = null) => {
 
     const horaAMinutos = (hora) => {
         const [h, m] = hora.split(':').map(Number);
@@ -93,12 +93,21 @@ export const verificarSolapamiento = async (salaId, fecha, hora, horaFin) => {
     const inicioNueva = horaAMinutos(hora);
     const finNueva = horaAMinutos(horaFin);
 
+    const whereCondition = {
+        salaId,
+        fecha,
+        estado: true
+    };
+
+    // Si se proporciona un funcionIdExcluir, excluirlo de la búsqueda
+    if (funcionIdExcluir) {
+        whereCondition.id = {
+            [Op.ne]: funcionIdExcluir
+        };
+    }
+
     const funcionExistente = await Funcion.findAll({
-        where: {
-            salaId,
-            fecha,
-            estado: true
-        }
+        where: whereCondition
     });
 
     const haySolapamiento = funcionExistente.some(funcion => {

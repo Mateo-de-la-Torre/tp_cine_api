@@ -113,7 +113,7 @@ export const updateFuncion = async (req, res) => {
 
         const horaFinal = await calcularHoraFin(fecha, hora, pelicula.duracion);
 
-        await verificarSolapamiento(salaId, fecha, hora, horaFinal);
+        await verificarSolapamiento(salaId, fecha, hora, horaFinal, id);
 
         await Funcion.update({
             peliculaId,
